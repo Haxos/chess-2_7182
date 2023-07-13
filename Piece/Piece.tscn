@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://chhef3dtrk8e7"]
+
+[ext_resource type="Texture2D" uid="uid://bccgnh6bwvysj" path="res://Piece/symbol-sprites.png" id="1_dnujm"]
+[ext_resource type="Script" path="res://Piece/Piece.gd" id="1_w2dif"]
+[ext_resource type="Texture2D" uid="uid://d2rh1pw22dgk5" path="res://Piece/token-sprites.png" id="1_wxvcd"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ps32c"]
+radius = 15.0
+
+[node name="Piece" type="Node2D" groups=["pieces"]]
+script = ExtResource("1_w2dif")
+
+[node name="Token" type="Sprite2D" parent="."]
+texture = ExtResource("1_wxvcd")
+hframes = 8
+vframes = 8
+
+[node name="Symbol" type="Sprite2D" parent="."]
+texture = ExtResource("1_dnujm")
+hframes = 16
+vframes = 16
+frame = 48
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_ps32c")
+
+[connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]
+[connection signal="mouse_entered" from="Area2D" to="." method="_on_area_2d_mouse_entered"]
+[connection signal="mouse_exited" from="Area2D" to="." method="_on_area_2d_mouse_exited"]

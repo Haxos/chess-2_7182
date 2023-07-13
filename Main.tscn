@@ -1,0 +1,141 @@
+[gd_scene load_steps=10 format=3 uid="uid://dsxc0uf4g5ypj"]
+
+[ext_resource type="PackedScene" uid="uid://b3mqpeodxtt5i" path="res://Board/Board.tscn" id="1_mxl74"]
+[ext_resource type="Script" path="res://Main.gd" id="1_y62jp"]
+[ext_resource type="AudioStream" uid="uid://laay21evb5x7" path="res://Audio/menu.wav" id="2_7h5nf"]
+[ext_resource type="AudioStream" uid="uid://d4a8unxapps50" path="res://Audio/atmoshperic.wav" id="3_81mlj"]
+[ext_resource type="Texture2D" uid="uid://cb5s4i4apcdd1" path="res://UI/button-texture.png" id="5_28x71"]
+[ext_resource type="Texture2D" uid="uid://gdtjaww7pru0" path="res://UI/title.png" id="6_wgdmv"]
+[ext_resource type="Texture2D" uid="uid://cxp1ybngl3f04" path="res://UI/lose.png" id="7_0yuyc"]
+[ext_resource type="Texture2D" uid="uid://bhlkpt4bm3ayf" path="res://UI/you.png" id="8_jipn6"]
+[ext_resource type="Texture2D" uid="uid://dj84ikfh6les3" path="res://UI/win.png" id="9_6trrr"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_y62jp")
+
+[node name="Board" parent="." instance=ExtResource("1_mxl74")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+ignore_rotation = false
+enabled = false
+zoom = Vector2(3, 3)
+rotation_smoothing_enabled = true
+
+[node name="MenuMusic" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_7h5nf")
+autoplay = true
+
+[node name="Atmospheric" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_81mlj")
+volume_db = 2.0
+
+[node name="StartMenu" type="Panel" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="StartMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.164706, 0.211765, 0.188235, 1)
+
+[node name="StartGame" type="TextureButton" parent="StartMenu"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -139.0
+offset_top = -338.0
+offset_right = 139.0
+grow_horizontal = 2
+grow_vertical = 0
+texture_normal = ExtResource("5_28x71")
+stretch_mode = 4
+
+[node name="Title" type="TextureRect" parent="StartMenu"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -319.0
+offset_top = 202.0
+offset_right = 321.0
+offset_bottom = 375.0
+grow_horizontal = 2
+texture = ExtResource("6_wgdmv")
+
+[node name="BackToStartMenuTimer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[node name="EndGameMenu" type="Panel" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="EndGameMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.164706, 0.211765, 0.188235, 1)
+
+[node name="Lose" type="TextureRect" parent="EndGameMenu"]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -203.0
+offset_top = 378.0
+offset_right = 202.469
+offset_bottom = 545.0
+grow_horizontal = 2
+texture = ExtResource("7_0yuyc")
+expand_mode = 3
+
+[node name="You" type="TextureRect" parent="EndGameMenu"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -140.0
+offset_top = 218.0
+offset_right = 121.29
+offset_bottom = 368.0
+grow_horizontal = 2
+texture = ExtResource("8_jipn6")
+expand_mode = 3
+
+[node name="Win" type="TextureRect" parent="EndGameMenu"]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -220.0
+offset_top = 387.0
+offset_right = 217.0
+offset_bottom = 599.0
+grow_horizontal = 2
+texture = ExtResource("9_6trrr")
+expand_mode = 3
+
+[connection signal="defeat" from="Board" to="." method="_on_board_defeat"]
+[connection signal="next_turn" from="Board" to="." method="_on_board_next_turn"]
+[connection signal="victory" from="Board" to="." method="_on_board_victory"]
+[connection signal="pressed" from="StartMenu/StartGame" to="." method="_on_start_game_pressed"]
+[connection signal="timeout" from="BackToStartMenuTimer" to="." method="_on_back_to_start_menu_timer_timeout"]
