@@ -22,26 +22,31 @@ var _previous_piece_data_entered: PieceData = null
 var _piece_data_clicked: PieceData = null
 var _game_ended = false
 
+
 func new_board():
 	board_data = BoardService.create_board_data()
 	board_data.number_of_moves = 0
-	board_data.current_player_color = PieceData.PlayerColor.Black
+	board_data.current_player_coloration = PlayerData.Coloration.Black
 	_instanciate_pieces()
 	_is_initialisation_finished = true
 	_game_ended = false
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	if _is_initialisation_finished:
 		_positionate_pieces()
 
+
 func _input(event):
 	if event is InputEventMouseButton && event.pressed:
 		_move_piece()
+
 
 func _instanciate_pieces():
 	get_tree().call_group("pieces", "queue_free")
@@ -53,20 +58,23 @@ func _instanciate_pieces():
 		piece.connect("on_over", _on_piece_over)
 		piece.connect("on_exit", _on_piece_exit)
 		piece.connect("on_click", _on_piece_click)
+		piece.connect("on_symbol_change", _on_symbol_change)
+
 
 func _positionate_pieces():
 	for piece in get_tree().get_nodes_in_group("pieces"):
 		piece.position = (piece.piece_data.grid_position * GRID_SIZE) + TOP_LEFT_CORNER_OFFSET
 
+
 func _move_piece():
 	if _game_ended or _piece_data_clicked == null:
 		return
-	
+
 	var mouse: Vector2 = get_global_mouse_position()
 	var click_position: Vector2i = $TileMap.local_to_map($TileMap.to_local(mouse))
 	var movement_position: Vector2i = click_position - TOP_LEFT_TILE_MAP_COORDONATES
-	var valid_movements = PieceService.get_valid_movements(_piece_data_clicked, board_data)
-	
+	var valid_movements = BoardService.get_valid_movements(board_data, _piece_data_clicked)
+
 	if valid_movements.any(func(valid_movement): return valid_movement == movement_position):
 		_apply_pieces_behaviour_changes(movement_position)
 		_check_victory_conditions()
@@ -75,89 +83,97 @@ func _move_piece():
 
 		_next_player()
 		_apply_pieces_behaviour_changes_self_interaction()
-	
+
 	_piece_data_clicked = null
 	_clean_layers()
 
+
 func _check_victory_conditions():
 	var winner = BoardService.check_winner(board_data)
-	if winner == board_data.current_player_color:
+	if winner == board_data.current_player_coloration:
 		victory.emit()
-	
-	var opponent: PieceData.PlayerColor = PieceData.PlayerColor.Black if board_data.current_player_color == PieceData.PlayerColor.White else PieceData.PlayerColor.White
+
+	var opponent: PlayerData.Coloration = (
+		PlayerData.Coloration.Black
+		if board_data.current_player_coloration == PlayerData.Coloration.White
+		else PlayerData.Coloration.White
+	)
 	if winner == opponent:
 		defeat.emit()
 
+
 func _apply_pieces_behaviour_changes(movement_position: Vector2i):
-	var maybe_interactable_piece = board_data.pieces_data.filter(func(piece_data: PieceData): return piece_data.grid_position == movement_position and piece_data.is_alive)
-	if not maybe_interactable_piece.is_empty():
-		var interactable_piece: PieceData = maybe_interactable_piece[0]
-		if _piece_data_clicked.symbol == PieceData.Symbol.Candel and interactable_piece.symbol == PieceData.Symbol.Sun:
-			_piece_data_clicked.symbol = PieceData.Symbol.CandelLit
-			_piece_data_clicked.grid_position = movement_position
-			$CandleLit.play()
-		elif interactable_piece.symbol == PieceData.Symbol.Candel and _piece_data_clicked.symbol == PieceData.Symbol.Sun:
-			interactable_piece.symbol = PieceData.Symbol.CandelLit
-			$CandleLit.play()
-		elif _piece_data_clicked.symbol == PieceData.Symbol.Harp:
-			interactable_piece.is_alive = false
-			_piece_data_clicked.symbol = PieceData.Symbol.Note
-			_piece_data_clicked.grid_position = movement_position
-			$Harp.play()
-		elif interactable_piece.symbol == PieceData.Symbol.Harp:
-			_piece_data_clicked.is_alive = false
-			interactable_piece.symbol = PieceData.Symbol.Note
-			$Harp.play()
-		else:
-			interactable_piece.is_alive = false
-			_piece_data_clicked.grid_position = movement_position
-	else:
-		_piece_data_clicked.grid_position = movement_position
+	BoardService.apply_movement(board_data, _piece_data_clicked, movement_position)
 	_apply_pieces_behaviour_changes_self_interaction()
+
 
 func _apply_pieces_behaviour_changes_self_interaction():
 	for piece_data in board_data.pieces_data:
-		if piece_data.symbol == PieceData.Symbol.Comedy and board_data.current_player_color == PieceData.PlayerColor.White:
-			piece_data.symbol = PieceData.Symbol.Tragedy
-		if piece_data.symbol == PieceData.Symbol.Tragedy and board_data.current_player_color == PieceData.PlayerColor.Black:
-			piece_data.symbol = PieceData.Symbol.Comedy
-		if piece_data.symbol == PieceData.Symbol.Moon and BoardService.get_color_from_position(piece_data.grid_position) == PieceData.PlayerColor.White:
-			piece_data.symbol = PieceData.Symbol.Sun
-		if piece_data.symbol == PieceData.Symbol.Sun and BoardService.get_color_from_position(piece_data.grid_position) == PieceData.PlayerColor.Black:
-			piece_data.symbol = PieceData.Symbol.Moon
+		BoardService.apply_self_interaction(board_data, piece_data)
+
 
 func _next_player():
-	board_data.current_player_color = PieceData.PlayerColor.Black if board_data.current_player_color == PieceData.PlayerColor.White else PieceData.PlayerColor.White
+	board_data.current_player_coloration = (
+		PlayerData.Coloration.Black
+		if board_data.current_player_coloration == PlayerData.Coloration.White
+		else PlayerData.Coloration.White
+	)
 	board_data.number_of_moves += 1
 	next_turn.emit()
 
+
 func _display_layers(piece_data: PieceData):
-	var movements = PieceService.get_valid_movements(piece_data, board_data)
+	var movements = BoardService.get_valid_movements(board_data, piece_data)
 	for movement in movements:
 		if BoardService.has_piece_in(board_data, movement):
-			$TileMap.set_cell(KILLABLE_LAYER_ID, movement + TOP_LEFT_TILE_MAP_COORDONATES, SOURCE_ID, KILLABLE_ATLAS_COORDONATES)
+			$TileMap.set_cell(
+				KILLABLE_LAYER_ID,
+				movement + TOP_LEFT_TILE_MAP_COORDONATES,
+				SOURCE_ID,
+				KILLABLE_ATLAS_COORDONATES
+			)
 		else:
-			$TileMap.set_cell(MOVEMENT_LAYER_ID, movement + TOP_LEFT_TILE_MAP_COORDONATES, SOURCE_ID, MOVEMENT_ATLAS_COORDONATES)
+			$TileMap.set_cell(
+				MOVEMENT_LAYER_ID,
+				movement + TOP_LEFT_TILE_MAP_COORDONATES,
+				SOURCE_ID,
+				MOVEMENT_ATLAS_COORDONATES
+			)
+
 
 func _clean_layers():
 	$TileMap.clear_layer(MOVEMENT_LAYER_ID)
 	$TileMap.clear_layer(KILLABLE_LAYER_ID)
-	
+
+
+func _on_symbol_change(new_symbol: PieceData.Symbol):
+	if new_symbol == PieceData.Symbol.CandelLit:
+		$CandleLit.play()
+	if new_symbol == PieceData.Symbol.Note:
+		$Harp.play()
+
+
 func _on_piece_click(piece_data: PieceData):
-	if _game_ended or piece_data.player_color != board_data.current_player_color:
+	if _game_ended or piece_data.player_coloration != board_data.current_player_coloration:
 		return
-	
+
 	_piece_data_clicked = piece_data
 	_clean_layers()
 	_display_layers(piece_data)
 
+
 func _on_piece_over(piece_data: PieceData):
-	if _game_ended or _piece_data_clicked != null or piece_data.player_color != board_data.current_player_color:
+	if (
+		_game_ended
+		or _piece_data_clicked != null
+		or piece_data.player_coloration != board_data.current_player_coloration
+	):
 		return
 
 	_previous_piece_data_entered = piece_data
 	_clean_layers()
 	_display_layers(piece_data)
+
 
 func _on_piece_exit(piece_data: PieceData):
 	if _game_ended or _piece_data_clicked == null and _previous_piece_data_entered == piece_data:
