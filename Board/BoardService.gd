@@ -16,12 +16,14 @@ static func apply_movement(
 			current_piece_data.symbol == PieceData.Symbol.Candel
 			and interactable_piece.symbol == PieceData.Symbol.Sun
 		):
+			interactable_piece.is_alive = false
 			current_piece_data.symbol = PieceData.Symbol.CandelLit
 			current_piece_data.grid_position = next_position
 		elif (
 			interactable_piece.symbol == PieceData.Symbol.Candel
 			and current_piece_data.symbol == PieceData.Symbol.Sun
 		):
+			current_piece_data.is_alive = false
 			interactable_piece.symbol = PieceData.Symbol.CandelLit
 		elif current_piece_data.symbol == PieceData.Symbol.Harp:
 			interactable_piece.is_alive = false
@@ -78,6 +80,7 @@ static func check_winner(board_data: BoardData) -> PlayerData.Coloration:
 		if board_data.current_player_coloration == PlayerData.Coloration.White
 		else PlayerData.Coloration.White
 	)
+
 	if board_data.pieces_data.any(
 		func(piece_data): return _is_globus_cruciger_dead_for_player(piece_data, opponent)
 	):

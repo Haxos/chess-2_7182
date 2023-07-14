@@ -76,13 +76,13 @@ func _move_piece():
 	var valid_movements = BoardService.get_valid_movements(board_data, _piece_data_clicked)
 
 	if valid_movements.any(func(valid_movement): return valid_movement == movement_position):
-		_apply_pieces_behaviour_changes(movement_position)
+		_apply_movement(movement_position)
 		_check_victory_conditions()
 		if _game_ended:
 			return
 
 		_next_player()
-		_apply_pieces_behaviour_changes_self_interaction()
+		_apply_self_interaction()
 
 	_piece_data_clicked = null
 	_clean_layers()
@@ -91,7 +91,9 @@ func _move_piece():
 func _check_victory_conditions():
 	var winner = BoardService.check_winner(board_data)
 	if winner == board_data.current_player_coloration:
-		victory.emit()
+		victory.emit(board_data.number_of_moves)
+		_game_ended = true
+		return
 
 	var opponent: PlayerData.Coloration = (
 		PlayerData.Coloration.Black
@@ -100,14 +102,15 @@ func _check_victory_conditions():
 	)
 	if winner == opponent:
 		defeat.emit()
+		_game_ended = true
+		return
 
 
-func _apply_pieces_behaviour_changes(movement_position: Vector2i):
+func _apply_movement(movement_position: Vector2i):
 	BoardService.apply_movement(board_data, _piece_data_clicked, movement_position)
-	_apply_pieces_behaviour_changes_self_interaction()
 
 
-func _apply_pieces_behaviour_changes_self_interaction():
+func _apply_self_interaction():
 	for piece_data in board_data.pieces_data:
 		BoardService.apply_self_interaction(board_data, piece_data)
 
