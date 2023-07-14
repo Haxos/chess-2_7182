@@ -154,6 +154,10 @@ func _on_symbol_change(new_symbol: PieceData.Symbol):
 		$CandleLit.play()
 	if new_symbol == PieceData.Symbol.Note:
 		$Harp.play()
+	if new_symbol == PieceData.Symbol.Moon:
+		$Moon.play()
+	if new_symbol == PieceData.Symbol.Sun:
+		$Sun.play()
 
 
 func _on_piece_click(piece_data: PieceData):

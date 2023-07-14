@@ -1,10 +1,12 @@
-[gd_scene load_steps=8 format=3 uid="uid://b3mqpeodxtt5i"]
+[gd_scene load_steps=10 format=3 uid="uid://b3mqpeodxtt5i"]
 
 [ext_resource type="Texture2D" uid="uid://80adus2x8ah1" path="res://Board/board-sprites.png" id="1_b1ka1"]
 [ext_resource type="Script" path="res://Board/Board.gd" id="1_wcig0"]
 [ext_resource type="PackedScene" uid="uid://chhef3dtrk8e7" path="res://Piece/Piece.tscn" id="2_g12p5"]
 [ext_resource type="AudioStream" uid="uid://boyy5yf8v1qj1" path="res://Audio/harp.mp3" id="4_hc468"]
 [ext_resource type="AudioStream" uid="uid://3mic8140lqdy" path="res://Audio/candle_lit.wav" id="5_g0urt"]
+[ext_resource type="AudioStream" uid="uid://dxbps1plu0ly2" path="res://Audio/moon.wav" id="6_vwqo1"]
+[ext_resource type="AudioStream" uid="uid://dr0vwee4tf6y4" path="res://Audio/sun.wav" id="7_qa36t"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sip0f"]
 texture = ExtResource("1_b1ka1")
@@ -67,3 +69,10 @@ volume_db = -15.0
 
 [node name="CandleLit" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("5_g0urt")
+
+[node name="Moon" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_vwqo1")
+
+[node name="Sun" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_qa36t")
+volume_db = -1.0
