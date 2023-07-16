@@ -5,10 +5,10 @@ const GRID_SIZE = 32
 const TOP_LEFT_CORNER_OFFSET: Vector2i = Vector2i(-112, -112)
 const TOP_LEFT_TILE_MAP_COORDONATES: Vector2i = Vector2i(8, 8)
 const SOURCE_ID = 1
-const MOVEMENT_ATLAS_COORDONATES = Vector2i(5, 1)
-const MOVEMENT_LAYER_ID = 2
-const KILLABLE_ATLAS_COORDONATES = Vector2i(5, 2)
-const KILLABLE_LAYER_ID = 3
+const MOVEMENT_ATLAS_COORDONATES = Vector2i(0, 2)
+const MOVEMENT_LAYER_ID = 0
+const KILLABLE_ATLAS_COORDONATES = Vector2i(0, 3)
+const KILLABLE_LAYER_ID = 1
 
 signal next_turn
 signal victory
@@ -71,7 +71,7 @@ func _move_piece():
 		return
 
 	var mouse: Vector2 = get_global_mouse_position()
-	var click_position: Vector2i = $TileMap.local_to_map($TileMap.to_local(mouse))
+	var click_position: Vector2i = $Map.local_to_map($Map.to_local(mouse))
 	var movement_position: Vector2i = click_position - TOP_LEFT_TILE_MAP_COORDONATES
 	var valid_movements = BoardService.get_valid_movements(board_data, _piece_data_clicked)
 
@@ -129,14 +129,14 @@ func _display_layers(piece_data: PieceData):
 	var movements = BoardService.get_valid_movements(board_data, piece_data)
 	for movement in movements:
 		if BoardService.has_piece_in(board_data, movement):
-			$TileMap.set_cell(
+			$Overlay.set_cell(
 				KILLABLE_LAYER_ID,
 				movement + TOP_LEFT_TILE_MAP_COORDONATES,
 				SOURCE_ID,
 				KILLABLE_ATLAS_COORDONATES
 			)
 		else:
-			$TileMap.set_cell(
+			$Overlay.set_cell(
 				MOVEMENT_LAYER_ID,
 				movement + TOP_LEFT_TILE_MAP_COORDONATES,
 				SOURCE_ID,
@@ -145,8 +145,8 @@ func _display_layers(piece_data: PieceData):
 
 
 func _clean_layers():
-	$TileMap.clear_layer(MOVEMENT_LAYER_ID)
-	$TileMap.clear_layer(KILLABLE_LAYER_ID)
+	$Overlay.clear_layer(MOVEMENT_LAYER_ID)
+	$Overlay.clear_layer(KILLABLE_LAYER_ID)
 
 
 func _on_symbol_change(new_symbol: PieceData.Symbol):

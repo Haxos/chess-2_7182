@@ -1,0 +1,28 @@
+[gd_resource type="TileSet" load_steps=3 format=3 uid="uid://d2paeu6ymn027"]
+
+[ext_resource type="Texture2D" uid="uid://80adus2x8ah1" path="res://Board/board-sprites.png" id="1_qhjyh"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sip0f"]
+texture = ExtResource("1_qhjyh")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+4:1/0 = 0
+5:0/0 = 0
+0:3/animation_frame_0/duration = 0.3
+0:3/animation_frame_1/duration = 0.3
+0:3/0 = 0
+0:2/animation_frame_0/duration = 0.3
+0:2/animation_frame_1/duration = 0.3
+0:2/0 = 0
+
+[resource]
+tile_size = Vector2i(32, 32)
+sources/1 = SubResource("TileSetAtlasSource_sip0f")
